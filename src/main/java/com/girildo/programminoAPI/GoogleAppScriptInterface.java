@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 public class GoogleAppScriptInterface {
@@ -192,9 +191,7 @@ public class GoogleAppScriptInterface {
         {
             // Make the API request.
             Operation op =
-                    service.scripts().run(scriptId, request).execute();
-            
-            
+                    service.scripts().run(scriptId, request).execute();          
             
             // Print results of request.
             if (op.getError() != null) 

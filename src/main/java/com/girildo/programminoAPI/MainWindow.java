@@ -24,7 +24,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -56,7 +55,6 @@ public class MainWindow
 	//CUSTOM FIELDS
 	private StartUpManager sUpManager;
 	private LogicaProgramma logica;
-	private File filePerVotoSegreto;
 
 
 	private JFrame frmProgramminoSoniagallery;
@@ -412,7 +410,7 @@ public class MainWindow
 
 	protected void generaClassificaOnClick()
 	{
-		Messaggio mess = logica.GeneraClassifica(this.slider.getValue(), filePerVotoSegreto);
+		Messaggio mess = logica.GeneraClassifica(this.slider.getValue());
 		if(mess.getFlag() == FlagMessaggio.NESSUN_ERRORE)
 		{
 			textAreaClassifica.setText(mess.getTestoNessunErrore());
@@ -486,7 +484,7 @@ public class MainWindow
 		this.textAreaErrori.setText("");
 		this.textAreaFoto.setText("");
 		this.textFieldLink.setText("");
-		this.filePerVotoSegreto = null;
+		this.determinaTipoLogica();
 	}
 
 	private static void addPopup(Component component, final JPopupMenu popup) {

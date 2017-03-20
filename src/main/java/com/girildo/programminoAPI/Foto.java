@@ -20,6 +20,15 @@ public class Foto implements Comparable<Foto>
 		this.ID = ID;
 		this.voti = 0;
 	}
+	
+	public Foto (Commento c) throws NumberFormatException
+	{
+		Autore autore = c.getAutore();
+		int ID = Integer.parseInt(c.getTesto().replace("#", ""));
+		this.autore = autore;
+		this.ID = ID;
+		autore.setSuaFoto(this);
+	}
 
 	@Override
 	public boolean equals(Object other)
@@ -48,6 +57,7 @@ public class Foto implements Comparable<Foto>
 	{
 		return String.format("Foto #%d di %s: %d voti", this.ID, this.autore.getNomeAbbreviato(), this.voti); 
 	}
+
 
 
 	

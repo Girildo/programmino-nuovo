@@ -1,6 +1,5 @@
 package com.girildo.programminoAPI;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,6 +18,7 @@ public abstract class LogicaProgramma
 	protected final static String SECRET = "a5be5f21bd03edc2";
 	protected ArrayList<Commento> listaCommenti;
 	public enum TipoLogica {LOGICA_SG, LOGICA_CM, LOGICA_CMS}
+	
 	public LogicaProgramma()
 	{
 		Commento.resetVotingFlag();
@@ -45,7 +45,7 @@ public abstract class LogicaProgramma
         	if(ex.getErrorCode().equalsIgnoreCase("1"))
 				return new Messaggio("Non ho trovato un topic di Flickr valido a quel link."
 						+ "\nAssicurati di aver copiato l'URL per intero", FlagMessaggio.ERRORE);
-			return new Messaggio("C'è un problema con FlickR...", FlagMessaggio.ERRORE);
+			return new Messaggio("C'è un problema con Flickr...", FlagMessaggio.ERRORE);
 		}
         catch(Exception ex2)
         {
@@ -63,8 +63,8 @@ public abstract class LogicaProgramma
         	{
         		break;
         	}
-        	Pattern p2 = Pattern.compile("<img class.+alt=\"THE WINNER\" />");
-        	if(p2.matcher(reply.getMessage()).find())
+        	p = Pattern.compile("<img class.+alt=\"THE WINNER\" />");
+        	if(p.matcher(reply.getMessage()).find())
         	{
         		break;
         	}
@@ -72,7 +72,6 @@ public abstract class LogicaProgramma
         	listaCommentiSporchi.add(commento);
         }
         boolean success = pulisciCommenti(listaCommentiSporchi);
-        //System.out.println("qui");
         String message = buildMessageFoto(); //crea il messaggio con le foto trovate
         
         if (success)
@@ -81,14 +80,6 @@ public abstract class LogicaProgramma
         
 	}
 	
-	protected Foto generaFotoDaCommento(Commento c) throws NumberFormatException
-	{
-		Autore autore = c.getAutore();
-		int id = Integer.parseInt(c.getTesto().replace("#", ""));
-		Foto foto = new Foto(autore, id);
-		autore.setSuaFoto(foto);
-		return foto;
-	}
 	
 	protected String buildMessageFoto()
 	{
@@ -101,7 +92,7 @@ public abstract class LogicaProgramma
 	        return builder.toString();
 	}
 	
-	public abstract Messaggio GeneraClassifica(int numPreferenze, File file);
+	public abstract Messaggio GeneraClassifica(int numPreferenze);
 	protected abstract boolean pulisciCommenti(ArrayList<Commento> commentiSporchi);
 	
 }

@@ -1,6 +1,5 @@
 package com.girildo.programminoAPI;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,7 +25,7 @@ public class LogicaProgrammaSG extends LogicaProgramma
 	List<Autore> listaAutoVoto, listaAutoriCheHannoVotato;
 	
 	@Override
-	public Messaggio GeneraClassifica(int numPreferenze, File file)
+	public Messaggio GeneraClassifica(int numPreferenze)
 	{
 		dictionaryFoto = new HashMap<Integer, Foto>();
 		listaAutoVoto = new ArrayList<Autore>();
@@ -82,7 +81,7 @@ public class LogicaProgrammaSG extends LogicaProgramma
 			}
 			else //se non è votazione (=È foto); qui si genera l'hash set;
 			{
-				Foto foto = super.generaFotoDaCommento(c);
+				Foto foto = new Foto(c);
 				dictionaryFoto.put(foto.getID(), foto);
 			}
 		}

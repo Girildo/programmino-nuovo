@@ -1,6 +1,5 @@
 package com.girildo.programminoAPI;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,7 +9,7 @@ import com.girildo.programminoAPI.Commento.TipoCommento;
 public class LogicaProgrammaCMS extends LogicaProgramma {
 
 	@Override
-	public Messaggio GeneraClassifica(int numPreferenze, File file) {
+	public Messaggio GeneraClassifica(int numPreferenze) {
 		// TODO Auto-generated method stub
 		return null;
 	}
