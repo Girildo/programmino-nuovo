@@ -129,7 +129,7 @@ public class LogicaProgrammaSG extends LogicaProgramma
 				, builderNonVotanti.toString()+builderAutoVoto.toString());
 	}
 	@Override
-	protected boolean pulisciCommenti(ArrayList<Commento> listaCommentiSporchi)
+	protected ArrayList<Commento> pulisciCommenti(ArrayList<Commento> listaCommentiSporchi)
 	{
 		//System.out.println(listaCommentiSporchi.size());
 		super.listaCommenti = new ArrayList<Commento>();
@@ -183,6 +183,6 @@ public class LogicaProgrammaSG extends LogicaProgramma
 			System.out.println(cd.getTipo());
 			listaCommenti.add(cd);
 		}
-		return listaCommenti.size() == listaCommentiSporchi.size() && Commento.Voting;
+		//return listaCommenti.size() == listaCommentiSporchi.size() && Commento.Voting;
 	}
 }

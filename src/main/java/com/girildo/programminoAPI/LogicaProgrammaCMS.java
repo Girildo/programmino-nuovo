@@ -15,9 +15,9 @@ public class LogicaProgrammaCMS extends LogicaProgramma {
 	}
 
 	@Override
-	protected boolean pulisciCommenti(ArrayList<Commento> commentiSporchi) {
+	protected ArrayList<Commento> pulisciCommenti(ArrayList<Commento> commentiDaPulire) {
 		super.listaCommenti = new ArrayList<Commento>();
-		for(Commento c : commentiSporchi)
+		for(Commento c : commentiDaPulire)
 		{
 			String testo = c.getTesto();
 			if(!testo.contains("#") && testo.contains("<a href")) //se il commento contiene un link ad una foto ma niente cancelletto
@@ -50,7 +50,6 @@ public class LogicaProgrammaCMS extends LogicaProgramma {
 			if(c.getTipo() == TipoCommento.VOTAZIONE)
 				System.out.println(c.getTesto());
 		}
-		return listaCommenti.size() == commentiSporchi.size();
 	}
 
 }

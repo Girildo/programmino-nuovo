@@ -44,6 +44,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.flickr4java.flickr.FlickrException;
 import com.girildo.programminoAPI.LogicaProgramma.TipoLogica;
 import com.girildo.programminoAPI.Messaggio.FlagMessaggio;
 import com.girildo.programminoAPI.StartUpManager.PrefsBundle;
@@ -432,7 +433,7 @@ public class MainWindow
 
 	protected void ottieniCommentiOnClick(final String link)
 	{
-		logica = null;
+		this.reset();
 		switch(this.determinaTipoLogica())
 		{
 		case LOGICA_SG:
@@ -447,7 +448,6 @@ public class MainWindow
 		default:
 			break;
 		}
-		this.reset();
 
 		final WaitDialog dial = new WaitDialog(this.frmProgramminoSoniagallery);
 		dial.setLocationRelativeTo(this.frmProgramminoSoniagallery);
@@ -456,17 +456,9 @@ public class MainWindow
 		SwingWorker<Void, Void> task = new SwingWorker<Void,Void>()
 		{
 			@Override
-			protected Void doInBackground() throws Exception
+			protected Void doInBackground()
 			{
-				Messaggio mess = logica.OttieniCommentiPulitiDaUrl(link);
-				if(mess.getFlag() == FlagMessaggio.NESSUN_ERRORE)
-				{
-					textAreaFoto.setText(mess.getTestoNessunErrore());
-					btnGeneraClassifica.setEnabled(true);
-				}
-				else if(mess.getFlag() == FlagMessaggio.ERRORE)
-					textAreaErrori.setText(mess.getTestoNessunErrore());
-				return null;
+				
 			}
 			@Override
 			protected void done()
@@ -480,11 +472,12 @@ public class MainWindow
 
 	private void reset()
 	{
+		logica = null;
+		this.determinaTipoLogica();
 		this.textAreaClassifica.setText("");
 		this.textAreaErrori.setText("");
 		this.textAreaFoto.setText("");
 		this.textFieldLink.setText("");
-		this.determinaTipoLogica();
 	}
 
 	private static void addPopup(Component component, final JPopupMenu popup) {
