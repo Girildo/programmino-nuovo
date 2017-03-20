@@ -1,9 +1,8 @@
 package com.girildo.programminoAPI;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,19 +14,19 @@ import com.girildo.programminoAPI.Messaggio.FlagMessaggio;
 public class LogicaProgrammaCM extends LogicaProgramma
 {
 	@Override
-	public Messaggio GeneraClassifica(int numPreferenze)
+	public Messaggio generaClassifica(ArrayList<Commento> commentiPuliti, int numPreferenze) throws Exception
 	{
-		HashMap<Integer, Foto> dictionaryFoto = new HashMap<Integer, Foto>();
-		HashMap<Integer, Foto> classificaGenerale = new HashMap<Integer, Foto>();
-		HashMap<Integer, Foto> classificaTecn = new HashMap<Integer, Foto>();
-		HashMap<Integer, Foto> classificaEspr = new HashMap<Integer, Foto>();
-		HashMap<Integer, Foto> classificaOrig = new HashMap<Integer, Foto>();
+		HashMap<Integer, Foto> dictionaryFoto = Foto.generaHashMapFotoDaCommenti(commentiPuliti);
+		Classifica classificaGenerale = new Classifica("Classifica Generale", dictionaryFoto.values());
+		Classifica classificaTecn = new Classifica("Classifica Tecnica", dictionaryFoto.values());
+		Classifica classificaEspr = new Classifica("Classifica Espressivit‡", dictionaryFoto.values());
+		Classifica classificaOrig = new Classifica("Classifica Originalit‡", dictionaryFoto.values());
 
 		ArrayList<Autore> listaAutoriCheHannoVotato = new ArrayList<Autore>();
 		ArrayList<Autore> listaAutoriConAutovoto = new ArrayList<Autore>();
 		ArrayList<Commento> commentiConErrore = new ArrayList<Commento>();
 
-		for(Commento c:listaCommenti)
+		for(Commento c:commentiPuliti)
 		{
 			ArrayList<Foto> votateNelCommentoTecn = new ArrayList<Foto>();
 			ArrayList<Foto> votateNelCommentoEspr = new ArrayList<Foto>();
@@ -35,61 +34,31 @@ public class LogicaProgrammaCM extends LogicaProgramma
 
 			if(c.getTipo() == TipoCommento.IGNORA)
 				continue;
-
-			else if (c.getTipo() == TipoCommento.STARTVOTING) //popola le classifiche con le foto
-			{
-				for(Foto f:dictionaryFoto.values())
-				{
-					classificaGenerale.put(f.getID(), f.clonaFoto());
-					classificaTecn.put(f.getID(), f.clonaFoto());
-					classificaEspr.put(f.getID(), f.clonaFoto());
-					classificaOrig.put(f.getID(), f.clonaFoto());
-				}
-			}
-
-
-			else if(c.getTipo() == TipoCommento.FOTO)
-			{
-				try
-				{
-					Foto foto = new Foto(c);
-					dictionaryFoto.put(foto.getID(), foto);
-				}
-				catch (NumberFormatException ex)
-				{
-					return new Messaggio("Nel commento contenente la foto di " + c.getAutore().getNome()
-							+ "ho trovato un errore nel numero", FlagMessaggio.ERRORE);
-				}
-			}
-
-
 			else if(c.getTipo() == TipoCommento.VOTAZIONE)
 			{
-				String[] split = c.getTesto().split("!");
+				String[] split = c.getTesto().split("!"); //Spezza il commento nei capturing groups
 				if(split.length < 3*numPreferenze)
 				{
-					return new Messaggio("La votazione di "+ c.getAutore().getNome() +
-							" sembra avere meno di "+ 3*numPreferenze +" voti", FlagMessaggio.ERRORE);
+					throw new Exception("La votazione di "+ c.getAutore().getNome() +
+							" sembra avere meno di "+ 3*numPreferenze +" voti");
 				}
 
-				for(String s:split)
+				for(String s:split) //Itera sui capturing groups
 				{
-					//System.out.println("qui");
 					s = s.trim();
 					if(!s.matches("[teoTEO] ?:? ?# ?\\d{1,2} ?"))
-						return new Messaggio("La votazione di " + c.getAutore().getNome() +
-								" sembra avere un errore di formato", FlagMessaggio.ERRORE);
+						throw new Exception("La votazione di " + c.getAutore().getNome() +
+								" sembra avere un errore di formato");
 					else
 					{
 						String testo = s.replace(":", "").replace(" ", ""); //pulisce la stringa iterata da : e spazi
 						char tipoVoto = Character.toUpperCase(testo.charAt(0)); //Salva per reference il primo carattere
 						testo = testo.substring(2);	//rimuove il primo carattere e il cancelletto
-						int parseID = Integer.parseInt(testo);
+						int parseID = Integer.parseInt(testo); //estrae l'ID della foto incluso nel capturing group
 						Foto fotoVotata = dictionaryFoto.get(parseID);
 
 						if(fotoVotata == null)
-							return new Messaggio(c.getAutore().getNome()+" ha votato una foto che non esiste"
-									, FlagMessaggio.ERRORE);
+							throw new Exception(c.getAutore().getNome()+" ha votato una foto che non esiste");
 
 						if(fotoVotata.getAutore().equals(c.getAutore())) //se l'autore della foto √® lo stesso del commenot
 						{
@@ -99,38 +68,39 @@ public class LogicaProgrammaCM extends LogicaProgramma
 						if(!listaAutoriCheHannoVotato.contains(c.getAutore()))
 							listaAutoriCheHannoVotato.add(c.getAutore());
 
-						classificaGenerale.get(parseID).aumentaVoti(1);
+						classificaGenerale.votaFoto(parseID, 1);
 						switch (tipoVoto) //Definisce la classifica da recuperare (T; E; O)
 						{
-							case 'T':
-								if(votateNelCommentoTecn.contains(fotoVotata))
-									return new Messaggio(c.getAutore().getNome() + " ha votato due volte la stessa"
-											+ " foto nella categoria 'tecnica'", FlagMessaggio.ERRORE);
-								classificaTecn.get(parseID).aumentaVoti(1);
-								votateNelCommentoTecn.add(fotoVotata);
-								break;
-							case 'E':
-								if(votateNelCommentoEspr.contains(fotoVotata))
-									return new Messaggio(c.getAutore().getNome() + " ha votato due volte la stessa"
-											+ " foto nella categoria 'espressivit‡'", FlagMessaggio.ERRORE);
-								classificaEspr.get(parseID).aumentaVoti(1);
-								votateNelCommentoEspr.add(fotoVotata);
-								break;
-							case 'O':
-								if(votateNelCommentoOrig.contains(fotoVotata))
-									return new Messaggio(c.getAutore().getNome() + " ha votato due volte la stessa"
-											+ " foto nella categoria 'originalit‡'", FlagMessaggio.ERRORE);
-								classificaOrig.get(parseID).aumentaVoti(1);
-								votateNelCommentoOrig.add(fotoVotata);
-								break;
+						case 'T':
+							if(votateNelCommentoTecn.contains(fotoVotata))
+								throw new Exception(c.getAutore().getNome() + " ha votato due volte la stessa"
+										+ " foto nella categoria 'tecnica'");
+							classificaTecn.votaFoto(parseID, 1);
+							votateNelCommentoTecn.add(fotoVotata);
+							break;
+						case 'E':
+							if(votateNelCommentoEspr.contains(fotoVotata))
+								throw new Exception(c.getAutore().getNome() + " ha votato due volte la stessa"
+										+ " foto nella categoria 'espressivit‡'");
+							classificaEspr.votaFoto(parseID, 1);
+							votateNelCommentoEspr.add(fotoVotata);
+							break;
+						case 'O':
+							if(votateNelCommentoOrig.contains(fotoVotata))
+								throw new Exception(c.getAutore().getNome() + " ha votato due volte la stessa"
+										+ " foto nella categoria 'originalit‡'");
+							classificaOrig.votaFoto(parseID, 1);
+							votateNelCommentoOrig.add(fotoVotata);
+							break;
 						}
 					}
 				}
 			}
 		}
-		List<Foto> listaOrdinataPerClassifica = new ArrayList<Foto>(classificaGenerale.values());
-		Collections.sort(listaOrdinataPerClassifica); //ordina la lista (dal pi√π basso al pi√π alto)
-		Collections.reverse(listaOrdinataPerClassifica); //inverte l'ordine
+		//List<Foto> listaOrdinataPerClassifica = new ArrayList<Foto>(classificaGenerale.values());
+		//Collections.sort(listaOrdinataPerClassifica); //ordina la lista (dal pi√π basso al pi√π alto)
+		//Collections.reverse(listaOrdinataPerClassifica); //inverte l'ordine
+		Collection<Foto> listaOrdinataPerClassifica = classificaGenerale.ordinaClassifica();
 		StringBuilder builderClassifica = new StringBuilder();
 		StringBuilder builderNonVotanti = new StringBuilder("Non hanno votato: \n");
 		StringBuilder builderAutoVoto = new StringBuilder("Si sono autovotati: \n");
@@ -151,17 +121,17 @@ public class LogicaProgrammaCM extends LogicaProgramma
 				flagXMessaggio = FlagMessaggio.ERRORE_PARZIALE;
 			}
 			builderClassifica.append(f.toString());
-			builderClassifica.append(" (T:" + classificaTecn.get(f.getID()).getVoti());
-			builderClassifica.append("| E:" + classificaEspr.get(f.getID()).getVoti());
-			builderClassifica.append("| O:" + classificaOrig.get(f.getID()).getVoti());
+			builderClassifica.append(" (T:" + classificaTecn.getVoti(f.getID()));
+			builderClassifica.append("|E:" + classificaEspr.getVoti(f.getID()));
+			builderClassifica.append("|O:" + classificaOrig.getVoti(f.getID()));
 			builderClassifica.append(")\n");
 		}
 		builderNonVotanti.append("-----------------------\n");
 		builderAutoVoto.append("-----------------------\n");
 		builderClassifica.append("-----------------------\n");
 		builderClassifica.append("Foto trovate: "+dictionaryFoto.size()+"\n");
-		builderClassifica.append("Hanno votato in "+listaAutoriCheHannoVotato.size()+"\n");
-		builderClassifica.append("Si sono autovotati in "+listaAutoriConAutovoto.size()+"\n");
+		builderClassifica.append("Hanno votato in: "+listaAutoriCheHannoVotato.size()+"\n");
+		builderClassifica.append("Si sono autovotati in: "+listaAutoriConAutovoto.size()+"\n");
 		builderClassifica.append("Voti con errore: "+commentiConErrore.size()+"\n");
 
 		if(listaAutoriConAutovoto.size() == 0)
@@ -173,20 +143,21 @@ public class LogicaProgrammaCM extends LogicaProgramma
 	}
 
 	@Override
-	protected ArrayList<Commento> pulisciCommenti(ArrayList<Commento> commentiDaPulire)
+	public ArrayList<Commento> pulisciCommenti(ArrayList<Commento> commentiDaPulire) throws Exception
 	{
+		ArrayList<Commento> commentiRipuliti = new ArrayList<>();
 		for(Commento c : commentiDaPulire)
 		{
 			String testo = c.getTesto();
 			if(!testo.contains("#") && testo.contains("<a href")) //se il commento contiene un link ad una foto ma niente cancelletto
 			{													  //spara una exception catched dal chiamante
-				throw new IllegalArgumentException("Il commento di "+c.getAutore().getNome()
+				throw new Exception("Il commento di "+c.getAutore().getNome()
 						+ " dovrebbe contenere una foto ma non trovo il cancelletto" );
 			}
 			if(!testo.contains("#") && !testo.contains("<a href"))
-			{
 				c.setTipo(TipoCommento.IGNORA);
-			}
+			if(testo.contains("Risultato Finale"))
+				c.setTipo(TipoCommento.IGNORA);
 			testo = testo.replaceAll("<a.+\\/><\\/a>", "");
 			String[] split = testo.split("\n");
 			StringBuilder builder = new StringBuilder();
@@ -217,10 +188,10 @@ public class LogicaProgrammaCM extends LogicaProgramma
 			c.setTesto(builder.toString()); //setta il testo di questo commento al builder
 			if(c.getTipo() != TipoCommento.IGNORA)
 				c.AggiornaTipo(TipoLogica.LOGICA_CM); //aggiorna il tipo
-			listaCommenti.add(c); //aggiorna la lista
-			System.out.println(c.getTipo());
-			if(c.getTipo() == TipoCommento.VOTAZIONE)
-				System.out.println(c.getTesto());
+			commentiRipuliti.add(c); //aggiorna la lista
 		}
+		if(commentiRipuliti.size() != commentiDaPulire.size())
+			throw new Exception("C'Ë qualcosa che non va nei commenti");
+		return commentiRipuliti;
 	}
 }

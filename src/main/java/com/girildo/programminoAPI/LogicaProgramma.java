@@ -1,7 +1,6 @@
 package com.girildo.programminoAPI;
 
 import java.util.ArrayList;
-import com.girildo.programminoAPI.Messaggio.FlagMessaggio;
 
 public abstract class LogicaProgramma 
 {
@@ -11,19 +10,7 @@ public abstract class LogicaProgramma
 	{
 		Commento.resetVotingFlag();
 	}
-	
-	protected String buildMessageFoto()
-	{
-		StringBuilder builder = new StringBuilder();
-	        for(Commento c:listaCommenti)
-	        {
-	        	if(c.getTipo() == Commento.TipoCommento.FOTO)
-	        		builder.append(c.toString()+'\n');
-	        }
-	        return builder.toString();
-	}
-	
-	public abstract Messaggio GeneraClassifica(int numPreferenze);
-	protected abstract ArrayList<Commento> pulisciCommenti(ArrayList<Commento> commentiDaPulire);
+	public abstract Messaggio generaClassifica(ArrayList<Commento> commentiPuliti, int numPreferenze) throws Exception;
+	public abstract ArrayList<Commento> pulisciCommenti(ArrayList<Commento> commentiDaPulire) throws Exception;
 	
 }

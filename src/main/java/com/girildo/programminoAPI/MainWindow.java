@@ -17,8 +17,9 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -44,7 +45,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.flickr4java.flickr.FlickrException;
 import com.girildo.programminoAPI.LogicaProgramma.TipoLogica;
 import com.girildo.programminoAPI.Messaggio.FlagMessaggio;
 import com.girildo.programminoAPI.StartUpManager.PrefsBundle;
@@ -160,7 +160,8 @@ public class MainWindow
 
 		menuItem = new JMenuItem("Incolla");
 		menuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent arg0) 
+			{
 				incolla();
 			}
 		});
@@ -222,8 +223,8 @@ public class MainWindow
 			@Override
 			public void focusGained(FocusEvent e) 
 			{
-				//				textAreaClassifica.setSelectionStart(0);
-				//				textAreaClassifica.setSelectionEnd(textAreaClassifica.getText().length());
+				//textAreaClassifica.setSelectionStart(0);
+				//textAreaClassifica.setSelectionEnd(textAreaClassifica.getText().length());
 				textAreaClassifica.selectAll();
 			}
 
@@ -408,10 +409,18 @@ public class MainWindow
 		else
 			return null;
 	}
-
+	ArrayList<Commento> commentiPuliti;
 	protected void generaClassificaOnClick()
 	{
-		Messaggio mess = logica.GeneraClassifica(this.slider.getValue());
+		Messaggio mess = null;
+		try 
+		{
+			mess = logica.generaClassifica(commentiPuliti, this.slider.getValue());
+		} 
+		catch (Exception e) {
+			textAreaErrori.setText(e.getLocalizedMessage());
+			return;
+		}
 		if(mess.getFlag() == FlagMessaggio.NESSUN_ERRORE)
 		{
 			textAreaClassifica.setText(mess.getTestoNessunErrore());
@@ -423,17 +432,11 @@ public class MainWindow
 			textAreaErrori.setText(mess.getTestoErroreParziale());
 			scrollPaneClassifica.scrollRectToVisible(new Rectangle());
 		}
-		else
-		{
-			textAreaErrori.setText(mess.getTestoNessunErrore());
-			textAreaClassifica.setText("");
-		}
 		this.menuItemCopia.setEnabled(this.textAreaClassifica.getText().length() != 0);
 	}
 
 	protected void ottieniCommentiOnClick(final String link)
 	{
-		this.reset();
 		switch(this.determinaTipoLogica())
 		{
 		case LOGICA_SG:
@@ -458,7 +461,18 @@ public class MainWindow
 			@Override
 			protected Void doInBackground()
 			{
-				
+				try 
+				{
+					commentiPuliti = logica.pulisciCommenti(FlickrInterface.getCommentsFromDiscussion(link));
+				} 
+				catch (Exception e) 
+				{
+					textAreaErrori.setText(e.getLocalizedMessage());
+					return null;
+				}
+				btnGeneraClassifica.setEnabled(true);
+				textAreaFoto.setText(buildMessageFoto(commentiPuliti));
+				return null;
 			}
 			@Override
 			protected void done()
@@ -522,6 +536,17 @@ public class MainWindow
 		clipboard.setContents(s, null);
 		//textAreaClassifica.setSelectionStart(0);
 		//textAreaClassifica.setSelectionEnd(0);
+	}
+	
+	protected String buildMessageFoto(Collection<Commento> listaCommenti)
+	{
+		StringBuilder builder = new StringBuilder();
+	        for(Commento c:listaCommenti)
+	        {
+	        	if(c.getTipo() == Commento.TipoCommento.FOTO)
+	        		builder.append(c.toString()+'\n');
+	        }
+	        return builder.toString();
 	}
 
 }

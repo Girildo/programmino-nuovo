@@ -24,7 +24,6 @@ public class FlickrInterface
 	private final static String SECRET = "a5be5f21bd03edc2";
 
 	/**
-	 * 
 	 * @param url Link alla discussione di Flickr.
 	 * @return Un ArrayList<Commento> con tutti i commenti (in {@link #Commento classe custom}) grezzi nella discussione.
 	 * @throws FlickrException
@@ -32,19 +31,29 @@ public class FlickrInterface
 	 */
 	public static ArrayList<Commento> getCommentsFromDiscussion(String url) throws FlickrException, Exception
 	{
-
 		Flickr flickr = new Flickr(KEY, SECRET, new REST());
 		GroupDiscussInterface dInterface = flickr.getDiscussionInterface();
 		ArrayList <Reply> repList = null;
-		String topicID = getTopicIDFromUrl(url);
-		int count = dInterface.getTopicInfo(topicID).getCountReplies(); //count delle risposte
-		ReplyObject rep = dInterface.getReplyList(topicID, count, 1); //ottiene l'oggetto dall'API
-		repList = rep.getReplyList(); //estrae la lista delle risposte
-		//return new Messaggio(ex2.getLocalizedMessage(), FlagMessaggio.ERRORE);
-
+		try
+		{
+			String topicID = getTopicIDFromUrl(url);
+			int count = dInterface.getTopicInfo(topicID).getCountReplies(); //count delle risposte
+			ReplyObject rep = dInterface.getReplyList(topicID, count, 1); //ottiene l'oggetto dall'API
+			repList = rep.getReplyList(); //estrae la lista delle risposte
+		}
+		catch(IllegalStateException ex)
+		{
+			throw new Exception("Il link alla discussione Flickr che hai inserito non è valido. Assicurati di averlo copiato interamente!");
+		}
+		catch(FlickrException ex)
+		{
+			throw new Exception("Sembra esserci un errore con Flirck");
+		}
+		
 
 		if (repList == null)
-			throw new Exception("RepList null");
+			throw new Exception("RepList null (Errore di Flickr!)");
+		
 		ArrayList<Commento> listaCommenti = new ArrayList<Commento>(); //lista di commenti con classe custom
 		for(Reply reply : repList) //itera oggetto API
 		{
@@ -56,6 +65,7 @@ public class FlickrInterface
 
 	private static String getTopicIDFromUrl(String url)
 	{
+		url = url.trim();
 		Pattern pattern = Pattern.compile("(?<=\\/discuss\\/)(\\d+)(?=\\/?)");
 		Matcher  matcher = pattern.matcher(url);
 		matcher.find();

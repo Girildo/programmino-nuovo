@@ -1,10 +1,15 @@
 package com.girildo.programminoAPI;
 
+import java.util.HashMap;
+import java.util.List;
+
+import com.girildo.programminoAPI.Commento.TipoCommento;
+
 public class Foto implements Comparable<Foto>
 {
 	private Autore autore;
 	private int ID;
-	
+
 	public int getID()
 	{
 		return ID;
@@ -12,16 +17,36 @@ public class Foto implements Comparable<Foto>
 
 
 	private int voti;
-	
-	
+
+
+	/**
+	 * Genera FotoDictionary dai commenti
+	 * @param sourceCommenti La lista dei commenti ripuliti
+	 * @return HashMap con le {@link #Foto} associate al loro ID.
+	 */
+	public static HashMap<Integer, Foto> generaHashMapFotoDaCommenti(List<Commento> sourceCommenti)
+	{
+		HashMap<Integer, Foto> hashMapFoto = new HashMap<>();
+		for (Commento c : sourceCommenti)
+		{
+			if(c.getTipo() == TipoCommento.FOTO)
+			{
+				Foto f = new Foto(c);
+				hashMapFoto.put(f.ID, f);
+			}
+		}
+		return hashMapFoto;
+	}
+
+
 	public Foto(Autore autore, int ID)
 	{
 		this.autore = autore;
 		this.ID = ID;
 		this.voti = 0;
 	}
-	
-	public Foto (Commento c) throws NumberFormatException
+
+	private Foto (Commento c) throws NumberFormatException
 	{
 		Autore autore = c.getAutore();
 		int ID = Integer.parseInt(c.getTesto().replace("#", ""));
@@ -59,18 +84,15 @@ public class Foto implements Comparable<Foto>
 	}
 
 
-
-	
 	public Foto clonaFoto()
 	{
 		return new Foto(this.autore, this.ID);
 	}
-	
+
 	@Override
 	public int compareTo(Foto other)
 	{
-		//int diff = this.getVoti() - other.getVoti();
 		return Integer.compare(this.getVoti(), other.getVoti());
 	}
-	
+
 }
