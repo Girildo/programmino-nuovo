@@ -149,16 +149,17 @@ public class MainWindow
 	 */
 	public MainWindow()
 	{
-		this.setTipoLogica(TipoLogica.LOGICA_CMS);
 		initialize();
+		//this.setTipoLogica(TipoLogica.LOGICA_SG);
+		
 	}
 
-	private void loadPreferences() 
+	private void loadPrefs() 
 	{
 		sUpManager = new StartUpManager();
 		PrefsBundle bundle = sUpManager.getDefaultPrefs();
 		sliderNumeroVoti.setValue(bundle.getPrefsNumber());
-		this.tipoLogica = bundle.getTipo();
+		this.setTipoLogica(bundle.getTipo());
 		this.reset();
 	}
 
@@ -414,7 +415,8 @@ public class MainWindow
 		menuItemVersione.setEnabled(false);
 		menuItemVersione.setText("Versione: "+VERSIONE);
 		popupMenu_3.add(menuItemVersione);
-		
+
+		loadPrefs();
 		initDataBindings();
 	}
 
@@ -498,14 +500,11 @@ public class MainWindow
 	private void reset()
 	{
 		logica = null;
+		Commento.resetVotingFlag();
 		this.textAreaClassifica.setText("");
 		this.textAreaErrori.setText("");
 		this.textAreaFoto.setText("");
 		this.textFieldLink.setText("");
-
-//		this.rdbtnmntmSoniaGallery.setSelected(this.tipoLogica == TipoLogica.LOGICA_SG);
-//		this.rdbtnmntmCampionato.setSelected(this.tipoLogica == TipoLogica.LOGICA_CM);
-//		this.rdbtnmntmCampionatoSegreto.setSelected(this.tipoLogica == TipoLogica.LOGICA_CMS);
 	}
 
 	private static void addPopup(Component component, final JPopupMenu popup) {
