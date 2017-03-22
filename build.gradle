@@ -27,11 +27,10 @@ dependencies {
 	
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
-    // https://mvnrepository.com/artifact/com.miglayout/miglayout-swing
 	compile group: 'com.miglayout', name: 'miglayout-swing', version: '4.2'
- 	// https://mvnrepository.com/artifact/com.flickr4java/flickr4java
 	compile group: 'com.flickr4java', name: 'flickr4java', version: '2.12'
- 	  
+	compile group: 'net.java.dev.beansbinding', name: 'beansbinding', version: '1.2.1'
+ 	
  	compile 'com.google.api-client:google-api-client:1.22.0'
     compile 'com.google.oauth-client:google-oauth-client-jetty:1.22.0'
     compile 'com.google.apis:google-api-services-script:v1-rev66-1.22.0'

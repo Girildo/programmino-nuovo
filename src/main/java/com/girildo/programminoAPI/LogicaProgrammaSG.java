@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -161,7 +160,6 @@ public class LogicaProgrammaSG extends LogicaProgramma
 			c.setTesto(builder.toString().replaceAll(" ", ""));
 			c.AggiornaTipo(TipoLogica.LOGICA_SG);
 			commentiRipuliti.add(c);
-			System.out.println(c.getTipo());
 		}
 		if(!(commentiDaPulire.size() == commentiRipuliti.size() && Commento.Voting))
 			throw new Exception("C'è qualcosa che non va nei commenti");

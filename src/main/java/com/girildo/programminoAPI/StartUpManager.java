@@ -5,43 +5,43 @@ import com.girildo.programminoAPI.LogicaProgramma.TipoLogica;
 
 public final class StartUpManager 
 {
-	private Preferences prefs;
+	/**The app preferences instance.*/
+	private static Preferences PREFERENCES;
 	
 	public final class PrefsBundle
 	{
 		private TipoLogica tipo;
-		private int prefsNumber;
+		private int voteNumber;
 		
 		public TipoLogica getTipo() {
 			return tipo;
 		}
 		public int getPrefsNumber()
 		{
-			return prefsNumber;
+			return voteNumber;
 		}
-		
 		public PrefsBundle(TipoLogica tipo, int prefsNumber)
 		{
 			this.tipo = tipo;
-			this.prefsNumber = prefsNumber;
+			this.voteNumber = prefsNumber;
 		}
 	}
 	
 	public StartUpManager()
 	{
-		prefs = Preferences.userNodeForPackage(this.getClass());
+		PREFERENCES = Preferences.userNodeForPackage(this.getClass());
 	}
 	
 	public void setDefaultPrefs(PrefsBundle bundle)
 	{
-		prefs.put("tipo", bundle.getTipo().toString());
-		prefs.putInt("prefsNumber", bundle.getPrefsNumber());
+		PREFERENCES.put("tipo", bundle.getTipo().toString());
+		PREFERENCES.putInt("voteNumber", bundle.getPrefsNumber());
 	}
 	
 	public PrefsBundle getDefaultPrefs()
 	{
-		TipoLogica tipo = TipoLogica.valueOf(prefs.get("tipo", "LOGICA_SG"));
-		int prefsNumber = prefs.getInt("prefsNumber", 5);
+		TipoLogica tipo = TipoLogica.valueOf(PREFERENCES.get("tipo", "LOGICA_SG"));
+		int prefsNumber = PREFERENCES.getInt("voteNumber", 5);
 		return new PrefsBundle(tipo, prefsNumber);
 	}
 }

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class GoogleAppScriptInterface {
@@ -40,6 +41,8 @@ public class GoogleAppScriptInterface {
     private static final JsonFactory JSON_FACTORY =
         JacksonFactory.getDefaultInstance();
 
+    
+    
     /** Global instance of the HTTP transport. */
     private static HttpTransport HTTP_TRANSPORT;
 
@@ -206,7 +209,6 @@ public class GoogleAppScriptInterface {
             e.printStackTrace(System.out);
             return null;
         }
-        retrieveFormResponses((String)url);
         return postProcessUrl(url);
     }
     
@@ -225,6 +227,8 @@ public class GoogleAppScriptInterface {
                     service.scripts().run(scriptId, request).execute();
             
             Object resp = op.getResponse().get("result");
+            
+            HashMap<String, HashMap<String, Integer>> map = (HashMap<String, HashMap<String, Integer>>)resp;
             
             // Print results of request.
             if (op.getError() != null) 
@@ -248,4 +252,6 @@ public class GoogleAppScriptInterface {
     	s += "/viewform";
     	return s;
     }
+    
+    //private static  interpreta
 }
